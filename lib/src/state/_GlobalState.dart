@@ -1,6 +1,7 @@
 import "./GlobalState.dart";
 import "./State.dart";
 import "./_State.dart";
+import 'dart:math';
 
 class GlobalDomStates implements GlobalState {
   GlobalDomStates._internal();
@@ -11,6 +12,16 @@ class GlobalDomStates implements GlobalState {
 
   State _getStateWithId(String id) {
     return this._state[id];
+  }
+
+  static String getRandomID() {
+    const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+    Random rnd = new Random(new DateTime.now().millisecondsSinceEpoch);
+    String result = "";
+    for (var i = 0; i < 10; i++) {
+      result += chars[rnd.nextInt(chars.length)];
+    }
+    return result;
   }
 
   registerState(String id, State state) {

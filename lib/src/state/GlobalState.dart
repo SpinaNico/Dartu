@@ -17,14 +17,18 @@ _addAllPermision(StateDom state, List<String> permisions, PermisionType type) {
 
 GlobalState globalState() => GlobalDomStates();
 
-State createState(
-  String id, {
+State createState({
+  String id,
   Map<String, dynamic> initState,
   List<String> idsPermisionOfCreate,
   List<String> idsPermisionOfRead,
   List<String> idsPermisionOfUpdate,
   List<String> idsPermisionOfDelete,
 }) {
+  if (id == null) {
+    id = GlobalDomStates.getRandomID();
+  }
+
   var state = StateDom(id, initState: initState);
 
   if (idsPermisionOfCreate != null) {
