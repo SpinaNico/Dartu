@@ -48,11 +48,6 @@ class _BasicDomComponent<T extends HtmlElement> implements DomComponent {
   }
 }
 
-class Fragment extends _BasicDomComponent<HtmlElement> {
-  Fragment({List<DomComponent> children, DomComponent child})
-      : super("<>", child: child, children: children);
-}
-
 class SimpeText extends _BasicDomComponent<HtmlElement> {
   SimpeText(String text) : super("text", text: text);
 }
@@ -75,4 +70,20 @@ class Center extends _BasicDomComponent<HtmlElement> {
 class Span extends _BasicDomComponent<SpanElement> {
   Span({List<DomComponent> children, DomComponent child, String text})
       : super("span", child: child, children: children, text: text);
+}
+
+class Button extends _BasicDomComponent<ButtonElement> {
+  Function(Event) onPressed;
+  Button(
+      {List<DomComponent> children,
+      DomComponent child,
+      String text,
+      this.onPressed})
+      : super("button", child: child, children: children, text: text);
+
+  ButtonElement pack() {
+    var t = super.pack();
+    t.addEventListener("click", this.onPressed);
+    return t;
+  }
 }

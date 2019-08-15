@@ -1,77 +1,71 @@
 import 'dart:html';
-import 'package:dartu/src/state/GlobalState.dart';
-import 'package:dartu/src/state/_State.dart';
+import 'package:dartu/src/state/State.dart';
+import 'package:dartu/src/state/functionUtilsGlobalState.dart';
 
 import './core/DomComponent.dart';
 import './_utils.dart';
-import "../state/State.dart";
 export "./core/DomComponent.dart";
-export './_BasicDomNode.dart' show Span, Div, Center, P, Fragment, SimpeText;
-
-abstract class ErrorComponent {
-  static String StateNotInitialized =
-      "before using State, initialize state with initState ()";
-}
+export './_BasicDomNode.dart' show Span, Div, Center, P, SimpeText, Button;
 
 abstract class Component implements DomComponent {
   DomComponent child;
-  DomComponent _this;
+
   List<DomComponent> children;
-  StateDom _stateComponent;
-  String _id;
+  StateComponent _stateComponent;
+  StateComponent get state => this._stateComponent;
   afterPack() {}
   beforePack() {}
+  bool _autoRefresh = false;
+  initState() {}
 
-  initState({
-    String ID,
-    Map<String, dynamic> initState,
-    List<String> idsPermisionOfCreate,
-    List<String> idsPermisionOfRead,
-    List<String> idsPermisionOfUpdate,
-    List<String> idsPermisionOfDelete,
-  }) {
-    this._stateComponent = createState(
-        id: ID,
-        initState: initState,
-        idsPermisionOfCreate: idsPermisionOfCreate,
-        idsPermisionOfRead: idsPermisionOfRead,
-        idsPermisionOfUpdate: idsPermisionOfUpdate,
-        idsPermisionOfDelete: idsPermisionOfDelete);
-    this._id = this._stateComponent.ID;
+  reBuild() {
+    beforePack();
+    this._fragment.children = [this.build().pack()];
+    afterPack();
   }
 
-  Set(Map<String, dynamic> newState) {
-    if (this._stateComponent == null) throw ErrorComponent.StateNotInitialized;
+  StateComponent foreignState(String id) {
+    if (this._stateComponent == null) {
+      throw "You don't have a status, and you can't access other states until you create one -> use createState()";
+    }
+    return ForeignState(this.state.ID, id);
+  }
 
-    for (var key in newState.keys) {
-      this._stateComponent.Set(this._id, key, newState[key]);
+  createState(
+      {String ID,
+      Map<String, dynamic> initState,
+      List<String> idsPermisionOfCreate,
+      List<String> idsPermisionOfRead,
+      List<String> idsPermisionOfUpdate,
+      List<String> idsPermisionOfDelete,
+      bool autoRefresh: false}) {
+    if (this._stateComponent == null) {
+      this.initState();
+
+      this._autoRefresh = autoRefresh;
+      this._stateComponent = rawCreateState(
+          id: ID,
+          initState: initState,
+          idsPermisionOfCreate: idsPermisionOfCreate,
+          idsPermisionOfRead: idsPermisionOfRead,
+          idsPermisionOfUpdate: idsPermisionOfUpdate,
+          idsPermisionOfDelete: idsPermisionOfDelete,
+          functionUpdate: this.update);
+      this._stateComponent.addListener((state) {
+        if (this._autoRefresh) {
+          this.reBuild();
+        }
+      });
     }
   }
 
-  Map<String, dynamic> Get(List<String> keys) {
-    if (this._stateComponent == null) throw ErrorComponent.StateNotInitialized;
+  update(Map<String, dynamic> old, Map<String, dynamic> next) {}
 
-    Map<String, dynamic> _semiState = {};
-    for (var i in keys) {
-      _semiState.addAll({i: this._stateComponent.Get(this._id, i)});
-    }
-    return _semiState;
-  }
-
-  addStateListener(Function(Map<String, dynamic>) function) {
-    var f = (StateDom t) {
-      function(t.state);
-    };
-    this._stateComponent.addListener(this._id, f);
-  }
-
+  DivElement _fragment = DivElement();
   HtmlElement pack() {
     checkDomComponent(this);
-    beforePack();
-    this._this = this.build();
-    var b = this._this.pack();
-    afterPack();
-    return b;
+    this.reBuild();
+    return this._fragment;
   }
 
   DomComponent build();

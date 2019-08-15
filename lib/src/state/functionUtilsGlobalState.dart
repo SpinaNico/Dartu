@@ -1,3 +1,5 @@
+import 'package:dartu/src/state/_StateComponent.dart';
+
 import "./State.dart";
 import "./_State.dart";
 import "./_GlobalState.dart";
@@ -17,18 +19,24 @@ _addAllPermision(StateDom state, List<String> permisions, PermisionType type) {
 
 GlobalState globalState() => GlobalDomStates();
 
-State createState({
-  String id,
-  Map<String, dynamic> initState,
-  List<String> idsPermisionOfCreate,
-  List<String> idsPermisionOfRead,
-  List<String> idsPermisionOfUpdate,
-  List<String> idsPermisionOfDelete,
-}) {
+State _otherState(String id) {
+  return globalState().Get(id);
+}
+
+StateComponent rawCreateState(
+    {String id,
+    Map<String, dynamic> initState,
+    List<String> idsPermisionOfCreate,
+    List<String> idsPermisionOfRead,
+    List<String> idsPermisionOfUpdate,
+    List<String> idsPermisionOfDelete,
+    updater functionUpdate}) {
   if (id == null) {
     id = GlobalDomStates.getRandomID();
   }
-
+  if (globalState().existsState(id)) {
+    return stateComponent(_otherState(id), updater: functionUpdate);
+  }
   var state = StateDom(id, initState: initState);
 
   if (idsPermisionOfCreate != null) {
@@ -46,5 +54,9 @@ State createState({
 
   GlobalDomStates globalDomStates = GlobalDomStates();
   globalDomStates.registerState(id, state);
-  return state;
+  return stateComponent(state, updater: functionUpdate);
+}
+
+StateComponent ForeignState(String how, String id) {
+  return stateComponent(_otherState(id), id: how);
 }

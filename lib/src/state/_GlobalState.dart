@@ -1,4 +1,4 @@
-import "./GlobalState.dart";
+import "./functionUtilsGlobalState.dart";
 import "./State.dart";
 import "./_State.dart";
 import 'dart:math';
@@ -40,6 +40,7 @@ class GlobalDomStates implements GlobalState {
     }
   }
 
+  bool existsState(String id) => this._state.containsKey(id);
   State Get(String id) {
     if (this._state.containsKey(id)) {
       StateDom c = this._state[id];
