@@ -1,7 +1,6 @@
 import 'dart:html';
-
-import 'package:dartu/dartu.dart';
-import '../DomComponent.dart';
+import './Component.dart';
+import './core/DomComponent.dart';
 
 HtmlElement packNodes(DomComponent root) {
   if (root is Component) {

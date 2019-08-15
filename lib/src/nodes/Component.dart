@@ -1,14 +1,15 @@
 import 'dart:html';
+import './core/DomComponent.dart';
+import './_utils.dart';
 
-import 'package:dartu/dartu.dart';
-import 'package:dartu/src/DomComponent.dart';
-import 'package:dartu/src/core/_utils.dart';
+export "./core/DomComponent.dart";
+export './_BasicDomNode.dart' show Span, Div, Center, P;
 
 abstract class Component implements DomComponent {
   DomComponent child;
   List<DomComponent> children;
   HtmlElement pack() {
-    setUp(this);
+    checkDomComponent(this);
     return this.build().pack();
   }
 

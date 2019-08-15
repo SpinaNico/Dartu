@@ -1,6 +1,6 @@
-import 'package:dartu/src/DomComponent.dart';
+import 'package:dartu/src/nodes/core/DomComponent.dart';
 
-setUp(DomComponent domComponent) {
+checkDomComponent(DomComponent domComponent) {
   assert(!(domComponent.child != null && domComponent.children != null),
       "Attention you cannot have both child and children once child: ${domComponent.child} or children:${domComponent.children}");
 }
