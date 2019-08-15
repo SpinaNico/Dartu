@@ -17,7 +17,8 @@ class StateDom implements State {
   String _masterId;
   String get ID => this._masterId;
   Map<String, dynamic> _initState;
-  Map<String, dynamic> _state;
+  Map<String, dynamic> _state = {};
+  Map<String, dynamic> get state => this._state;
   StateDom(String id, {Map<String, dynamic> initState}) {
     if (initState == null)
       this._initState = {};
@@ -25,7 +26,7 @@ class StateDom implements State {
       this._initState = initState;
 
     this._masterId = id;
-    this._state = initState;
+    this._state = this._initState;
   }
 
   List<List<String>> _permisionTable = [
@@ -101,6 +102,7 @@ class StateDom implements State {
       // update element
       if (this.idInPermision(masterId, PermisionType.Update)) {
         this._state[key] = value;
+        this.notifyAllListener();
       } else {
         throw ErrorState.PermisionDenied;
       }
@@ -108,6 +110,7 @@ class StateDom implements State {
       // create element
       if (this.idInPermision(masterId, PermisionType.Create)) {
         this._state[key] = value;
+        this.notifyAllListener();
       } else {
         throw ErrorState.PermisionDenied;
       }
@@ -124,5 +127,20 @@ class StateDom implements State {
     } else {
       throw ErrorState.missPermision(PermisionType.Create);
     }
+  }
+
+  List<Function(StateDom)> _subs = [];
+
+  notifyAllListener() {
+    for (var i in this._subs) {
+      i(this);
+    }
+  }
+
+  addListener(String masterID, Function(StateDom) function) {
+    if (this.idInPermision(masterID, PermisionType.Read)) {
+      this._subs.add(function);
+    } else
+      throw ErrorState.PermisionDenied;
   }
 }

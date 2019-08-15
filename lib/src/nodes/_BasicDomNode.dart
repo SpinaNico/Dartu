@@ -14,7 +14,7 @@ class _BasicDomComponent<T extends HtmlElement> implements DomComponent {
   DomComponent child;
   List<DomComponent> children = [];
   List<String> className = [];
-  T _element;
+  T element;
   String _tag;
   String text;
   _BasicDomComponent(String tag,
@@ -24,28 +24,37 @@ class _BasicDomComponent<T extends HtmlElement> implements DomComponent {
   }
 
   T pack() {
-    this._element = Element.tag(this._tag);
+    this.element = Element.tag(this._tag);
 
     if (this.className != null) {
       if (!this.className.isEmpty)
-        this._element.classes = this.className ?? null;
+        this.element.classes = this.className ?? null;
     }
 
     if (this.text != null) {
-      this._element.text = text;
+      this.element.text = text;
     }
 
     if (this.child != null) {
-      this._element.append(this.child.pack());
+      this.element.append(this.child.pack());
     } else {
       if (this.children != null) {
         for (var i in this.children) {
-          this._element.append(i.pack());
+          this.element.append(i.pack());
         }
       }
     }
-    return this._element;
+    return this.element;
   }
+}
+
+class Fragment extends _BasicDomComponent<HtmlElement> {
+  Fragment({List<DomComponent> children, DomComponent child})
+      : super("<>", child: child, children: children);
+}
+
+class SimpeText extends _BasicDomComponent<HtmlElement> {
+  SimpeText(String text) : super("text", text: text);
 }
 
 class P extends _BasicDomComponent<ParagraphElement> {
