@@ -310,56 +310,83 @@ The practice of sharing the state in large components can be useful, but Dartu a
 (for now there is an example are the Read permission, I hope in the future to bring other examples in the documentation)
 
 ```dart
-import 'package:dartu/src/state/_State.dart';
+import 'dart:html';
 
-import './State.dart';
+import "package:dartu/dartu.dart";
 
-abstract class ErrorStateComponent {
-  static String StateNotInitialized =
-      "before using State, initialize state with initState ()";
-}
+main() {
+  var app = packNodes(Div(child: CounterPP()));
 
-class stateComponent implements StateComponent {
-  StateDom _state;
-  String _id;
-  String get ID => this._id;
-
-  stateComponent(State state, {String id}) {
-    this._state = state;
-    if (id == null)
-      this._id = this._state.ID;
-    else
-      this._id = id;
-  }
-  @override
-  Map<String, dynamic> Get(List<String> keys) {
-    if (this._state == null) throw ErrorStateComponent.StateNotInitialized;
-
-    Map<String, dynamic> _semiState = {};
-
-    for (var i in keys) {
-      _semiState.addAll({i: this._state.Get(this._id, i)});
-    }
-
-    return _semiState;
-  }
-
-  @override
-  Set(Map<String, dynamic> newState) {
-    if (this._state == null) throw ErrorStateComponent.StateNotInitialized;
-
-    for (var key in newState.keys) {
-      this._state.Set(this._id, key, newState[key]);
-    }
-
-    this._state.notifyAllListener();
-  }
-
-  addListener(Function(State) listen) {
-    this._state.addListener(this._id, listen);
+  var root = querySelector("#root");
+  if (root != null) {
+    root.append(app);
   }
 }
 
+class BoxEven extends Component {
+  StateComponent counterState;
+  beforePack() {
+    this.createState(ID: "BoxEven", autoRefresh: true);
+    this.counterState = this.foreignState("Counter++");
+  }
+
+  @override
+  DomComponent build() {
+    var even = this.counterState.Get(["evenSum"])["evenSum"];
+    return Div(text: "Sum even number: $even");
+  }
+}
+
+class BoxOdd extends Component {
+  StateComponent counterState;
+  beforePack() {
+    this.createState(ID: "BoxOdd", autoRefresh: true);
+    this.counterState = this.foreignState("Counter++");
+  }
+
+  @override
+  DomComponent build() {
+    var odd = this.counterState.Get(["oddSum"])["oddSum"];
+    return Div(text: "Sum  odd number: $odd");
+  }
+}
+
+class CounterPP extends Component {
+  @override
+  beforePack() {
+    this.createState(
+        ID: "Counter++",
+        initState: {"count": 0, "oddSum": 0, "evenSum": 0},
+        autoRefresh: false);
+  }
+
+  update(oldState, newState) {
+    print("$oldState $newState");
+  }
+
+  @override
+  DomComponent build() {
+    int c = this.state.Get(["count"])["count"];
+    return Center(children: [
+      H2(text: "Counter++"),
+      Div(children: [BoxOdd(), BoxEven()]),
+      HR(),
+      Button(
+          text: "Push me!",
+          onPressed: (e) {
+            ++c;
+            var s = this.state.Get(["evenSum", "oddSum"]);
+            if (c % 2 == 0) {
+              s["evenSum"] += c;
+            } else {
+              s["oddSum"] += c;
+            }
+            this.state.Set(
+                {"count": c, "evenSum": s["evenSum"], "oddSum": s["oddSum"]});
+          })
+    ]);
+  }
+}
 ```
 
 **This code produces an error!**
