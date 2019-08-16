@@ -5,7 +5,11 @@ import 'package:dartu/src/state/functionUtilsGlobalState.dart';
 import './core/DomComponent.dart';
 import './_utils.dart';
 export "./core/DomComponent.dart";
-export './_BasicDomNode.dart' show Span, Div, Center, P, SimpeText, Button;
+export "./_htmlElement.dart";
+export './_typography.dart';
+export "./_inputElement.dart";
+export "./_canvasElement.dart";
+export "./_layoutElement.dart";
 
 abstract class Component implements DomComponent {
   DomComponent child;
@@ -24,11 +28,27 @@ abstract class Component implements DomComponent {
     afterPack();
   }
 
+  _deepReBuild(State state) {
+    this.update(state.oldState, state.state);
+    if (this._autoRefresh) {
+      this.reBuild();
+    }
+  }
+
+  List<String> _otherStates = [];
   StateComponent foreignState(String id) {
     if (this._stateComponent == null) {
       throw "You don't have a status, and you can't access other states until you create one -> use createState()";
     }
-    return ForeignState(this.state.ID, id);
+    var s = ForeignState(this.state.ID, id);
+    if (this._otherStates.contains(id) == false) {
+      s.addListener((s) {
+        this._deepReBuild(s);
+      });
+      this._otherStates.add(id);
+    }
+    // print(this._otherStates.toString());
+    return s;
   }
 
   createState(
@@ -44,18 +64,14 @@ abstract class Component implements DomComponent {
 
       this._autoRefresh = autoRefresh;
       this._stateComponent = rawCreateState(
-          id: ID,
-          initState: initState,
-          idsPermisionOfCreate: idsPermisionOfCreate,
-          idsPermisionOfRead: idsPermisionOfRead,
-          idsPermisionOfUpdate: idsPermisionOfUpdate,
-          idsPermisionOfDelete: idsPermisionOfDelete,
-          functionUpdate: this.update);
-      this._stateComponent.addListener((state) {
-        if (this._autoRefresh) {
-          this.reBuild();
-        }
-      });
+        id: ID,
+        initState: initState,
+        idsPermisionOfCreate: idsPermisionOfCreate,
+        idsPermisionOfRead: idsPermisionOfRead,
+        idsPermisionOfUpdate: idsPermisionOfUpdate,
+        idsPermisionOfDelete: idsPermisionOfDelete,
+      );
+      this._stateComponent.addListener((s) => this._deepReBuild(s));
     }
   }
 
