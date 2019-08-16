@@ -23,19 +23,21 @@ State _otherState(String id) {
   return globalState().Get(id);
 }
 
-StateComponent rawCreateState(
-    {String id,
-    Map<String, dynamic> initState,
-    List<String> idsPermisionOfCreate,
-    List<String> idsPermisionOfRead,
-    List<String> idsPermisionOfUpdate,
-    List<String> idsPermisionOfDelete,
-    updater functionUpdate}) {
+StateComponent rawCreateState({
+  String id,
+  Map<String, dynamic> initState,
+  List<String> idsPermisionOfCreate,
+  List<String> idsPermisionOfRead,
+  List<String> idsPermisionOfUpdate,
+  List<String> idsPermisionOfDelete,
+}) {
   if (id == null) {
     id = GlobalDomStates.getRandomID();
   }
   if (globalState().existsState(id)) {
-    return stateComponent(_otherState(id), updater: functionUpdate);
+    return stateComponent(
+      _otherState(id),
+    );
   }
   var state = StateDom(id, initState: initState);
 
@@ -54,9 +56,11 @@ StateComponent rawCreateState(
 
   GlobalDomStates globalDomStates = GlobalDomStates();
   globalDomStates.registerState(id, state);
-  return stateComponent(state, updater: functionUpdate);
+  return stateComponent(
+    state,
+  );
 }
 
-StateComponent ForeignState(String how, String id) {
-  return stateComponent(_otherState(id), id: how);
+StateComponent ForeignState(String who, String id) {
+  return stateComponent(_otherState(id), id: who);
 }

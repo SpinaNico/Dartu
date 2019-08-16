@@ -18,6 +18,8 @@ class StateDom implements State {
   String get ID => this._masterId;
   Map<String, dynamic> _initState;
   Map<String, dynamic> _state = {};
+  Map<String, dynamic> _oldState = {};
+  Map<String, dynamic> get oldState => this._oldState;
   Map<String, dynamic> get state => this._state;
   StateDom(String id, {Map<String, dynamic> initState}) {
     if (initState == null)
@@ -89,7 +91,7 @@ class StateDom implements State {
     if (this.idInPermision(masterId, PermisionType.Read)) {
       return this._state[key];
     } else {
-      return ErrorState.PermisionDenied;
+      throw ErrorState.PermisionDenied;
     }
   }
 
@@ -98,11 +100,11 @@ class StateDom implements State {
       throw ErrorState.KeyNull;
     }
 
+    this._oldState = Map<String, dynamic>.from(this._state);
     if (this._state.containsKey(key)) {
       // update element
       if (this.idInPermision(masterId, PermisionType.Update)) {
         this._state[key] = value;
-        this.notifyAllListener();
       } else {
         throw ErrorState.PermisionDenied;
       }
@@ -110,7 +112,6 @@ class StateDom implements State {
       // create element
       if (this.idInPermision(masterId, PermisionType.Create)) {
         this._state[key] = value;
-        this.notifyAllListener();
       } else {
         throw ErrorState.PermisionDenied;
       }
