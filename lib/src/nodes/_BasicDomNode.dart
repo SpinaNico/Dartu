@@ -3,21 +3,14 @@ import 'dart:html';
 import "./core/DomComponent.dart";
 import "./_utils.dart";
 
-typedef constructorDomC<T> = T Function(
-    {String ID,
-    DomComponent child,
-    List<DomComponent> childrend,
-    String text,
-    List<String> className});
-
-class _BasicDomComponent<T extends HtmlElement> implements DomComponent {
+class BasicDomComponent<T extends HtmlElement> implements DomComponent {
   DomComponent child;
   List<DomComponent> children = [];
   List<String> className = [];
   T element;
   String _tag;
   String text;
-  _BasicDomComponent(String tag,
+  BasicDomComponent(String tag,
       {this.child, this.children, this.className, this.text}) {
     checkDomComponent(this);
     this._tag = tag;
@@ -45,45 +38,5 @@ class _BasicDomComponent<T extends HtmlElement> implements DomComponent {
       }
     }
     return this.element;
-  }
-}
-
-class SimpeText extends _BasicDomComponent<HtmlElement> {
-  SimpeText(String text) : super("text", text: text);
-}
-
-class P extends _BasicDomComponent<ParagraphElement> {
-  P({List<DomComponent> children, DomComponent child, String text})
-      : super("p", child: child, children: children, text: text);
-}
-
-class Div extends _BasicDomComponent<DivElement> {
-  Div({List<DomComponent> children, DomComponent child, String text})
-      : super("div", child: child, children: children, text: text);
-}
-
-class Center extends _BasicDomComponent<HtmlElement> {
-  Center({List<DomComponent> children, DomComponent child, String text})
-      : super("center", child: child, children: children, text: text);
-}
-
-class Span extends _BasicDomComponent<SpanElement> {
-  Span({List<DomComponent> children, DomComponent child, String text})
-      : super("span", child: child, children: children, text: text);
-}
-
-class Button extends _BasicDomComponent<ButtonElement> {
-  Function(Event) onPressed;
-  Button(
-      {List<DomComponent> children,
-      DomComponent child,
-      String text,
-      this.onPressed})
-      : super("button", child: child, children: children, text: text);
-
-  ButtonElement pack() {
-    var t = super.pack();
-    t.addEventListener("click", this.onPressed);
-    return t;
   }
 }
