@@ -10,6 +10,19 @@ Dartu also offers an internal system for communication between components, throu
 
 ---
 
+#### How to start an example
+
+Dartu is currently not on Pub.dev but soon it will be...
+
+To start an example, which we will mention in this readme will suffice
+
+* Installation of the Sdk Dart and put into Global "webdev"
+* clone this repository
+* open the terminal in an examples folder and run the dev server
+   `webdev serve --auto refresh`
+
+---
+
 #### Layout 
 
 The following lines will suffice to build a first Hello World with Dartu
@@ -460,4 +473,3 @@ If we do not indicate "ID" in the "createState" function, a name will be generat
 ```
 
 ```idsPermisionOfRead: ["BoxEven", "BoxOdd"]```  Only the "BoxOdd" and "BoxEven" states can access the counter status, and only with read permission. They can't write!
-
